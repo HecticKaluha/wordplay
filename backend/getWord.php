@@ -2,39 +2,49 @@
 error_reporting(E_ERROR | E_PARSE);
 
 $word = $_POST["word"];
+$elements = ['empty'];
+$infoFound = true;
 
-$curl = curl_init("https://www.welklidwoord.nl/". $word);
-$fp = fopen("../assets/output.txt", "w");
+    //get new word!!
 
-curl_setopt($curl, CURLOPT_FILE, $fp);
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_HEADER, 0);
-$result = curl_exec($curl);
-if(curl_error($curl)) {
-    fwrite($fp, curl_error($curl));
-}
-curl_close($curl);
-fclose($fp);
+    $curl = curl_init("https://www.woorden.org/woord/". $word);
+//    $curl = curl_init("https://www.welklidwoord.nl/". $word);
 
-$dom = new DOMDocument();
-$dom->loadHTML($result);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HEADER, 0);
+    $result = curl_exec($curl);
+    curl_close($curl);
 
-$xpath = new DomXPath($dom);
+    $dom = new DOMDocument();
+    $dom->loadHTML($result);
 
-$class = 'nieuwH2';
-$divs = $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' $class ')]");
+    $xpath = new DomXPath($dom);
+
+//    $class = 'nieuwH2';
+    $style = 'font-size:8pt';
+//    $elements = $xpath->query("//*[contains(@class, '$class')]");
+    $elements = $xpath->query("//*[contains(@style, '$style')]");
+
+
 
 $articles = [];
-foreach($divs as $div) {
-    $value = trim(htmlspecialchars($div->nodeValue));
-    $article = substr($value, 0,strrpos($value," "));
-    array_push($articles, $article);
+foreach($elements as $elem) {
+    $value = trim(htmlspecialchars($elem->nodeValue));
+//    $article = substr($value, 0,strrpos($value," "));
+    if(in_array($value, ['de', 'het'])){
+        $article = $value;
+        array_push($articles, $article);
+    }
 }
+$articles = array_unique($articles);
+//var_dump($articles);
+
+$infoFound = empty($articles) ? false : true;
 
 $data = [
-    'data' => "test",
     'word' => $word,
-    'article' => $articles,
+    'infoFound' => $infoFound,
+    'articles' => $articles,
 ];
 
 echo json_encode($data);

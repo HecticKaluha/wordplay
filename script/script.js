@@ -1,8 +1,9 @@
 let wordElem = document.getElementById('word');
-let words = ["fiets", "hond", "huis", "aarde", "eend", "gans", "hert", "tafel", "telefoon", "frietpan", "pan", "aardappel", "laptop", "werk", "stoel", "voorhoofd", "arm", "wekker", "bed"];
-let currentArticle = null;
+let words = ["fiets", "hond", "huis", "aarde", "eend", "gans", "hert", "tafel", "telefoon", "pan", "aardappel", "laptop", "werk", "stoel", "voorhoofd", "arm", "wekker", "bed"];
+// let words = ["bos"];
+let currentArticles = [];
 let currentWord = null;
-
+let currentWordInfoFound = false;
 
 function selectRandomWord(){
     return words[Math.floor(Math.random() * words.length)];
@@ -25,7 +26,8 @@ function fetchWordInfo(wordToFetch){
         .then((res) => res.json())
         .then(data => {
             console.log(data)
-            currentArticle = data['article'][0];
+            currentArticles = data['articles'];
+            currentWordInfoFound = data['infoFound'];
             });
 }
 function showWord(wordToShow){
@@ -33,25 +35,26 @@ function showWord(wordToShow){
 }
 
 function decision(decision){
-    if(currentArticle === "Het of de"){
+    console.log(currentArticles);
+    if(currentArticles.length > 1){
         Swal.fire({
             icon: 'success',
             title: 'Goed gedaan! Je had het goed!',
-            html: `Afhankelijk van de betekenis van <i>${currentWord}</i> zijn beide <b><u>${currentArticle}</u></b> goed.`,
+            html: `Afhankelijk van de betekenis van <i>${currentWord}</i> zijn beide <b><u>${currentArticles[0]}</u></b> en <b><u>${currentArticles[1]}</u></b> goed.`,
         }).then(() => newChallenge());
     }
-    else if(decision === currentArticle){
+    else if(decision.toLowerCase() === currentArticles[0].toLowerCase()){
         Swal.fire({
             icon: 'success',
             title: 'Goed gedaan! Je had het goed!',
-            html: `Het juist lidwoord is <b><u>${currentArticle}</u></b> <i>${currentWord}</i>`,
+            html: `Het juist lidwoord is <b><u>${currentArticles[0]}</u></b> <i>${currentWord}</i>`,
         }).then(() => newChallenge());
     }
     else{
         Swal.fire({
             icon: 'error',
             title: 'Oepsie... dat is het foute antwoord :(',
-            html: `Het juiste antwoord zou moeten zijn <b><U>${currentArticle}</U></b> <i>${currentWord}</i>`,
+            html: `Het juiste antwoord zou moeten zijn <b><U>${currentArticles[0]}</U></b> <i>${currentWord}</i>`,
         }).then(() => newChallenge());
     }
 
@@ -62,4 +65,5 @@ function newChallenge(){
     fetchWordInfo(currentWord);
     showWord(currentWord);
 }
+
 newChallenge()
