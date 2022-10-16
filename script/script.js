@@ -4,12 +4,14 @@ let words = ["fiets", "hond", "huis", "aarde", "eend", "gans", "hert", "tafel", 
 let currentArticles = [];
 let currentWord = null;
 let currentWordInfoFound = false;
+let loader = document.getElementById('loader');
 
 function selectRandomWord(){
     return words[Math.floor(Math.random() * words.length)];
 }
 
-function fetchWordInfo(wordToFetch){
+async function fetchWordInfo(wordToFetch){
+    loader.style.visibility="visible";
     let body = {
         "word": wordToFetch,
     };
@@ -19,23 +21,25 @@ function fetchWordInfo(wordToFetch){
         formData.append(key, body[key]);
     }
 
-    fetch("http://localhost/sites/persoonlijk/wordplay/backend/getWord.php",{
+    await fetch("http://localhost/sites/persoonlijk/wordplay/backend/getWord.php",{
         method:'POST',
         body: formData,
     })
-        .then((res) => res.json())
+        .then(res => res.json())
         .then(data => {
             console.log(data)
             currentArticles = data['articles'];
             currentWordInfoFound = data['infoFound'];
-            });
+        });
+}
+function cleanWord(){
+    wordElem.innerText = "";
 }
 function showWord(wordToShow){
     wordElem.innerText = wordToShow;
 }
 
 function decision(decision){
-    console.log(currentArticles);
     if(currentArticles.length > 1){
         Swal.fire({
             icon: 'success',
@@ -62,8 +66,13 @@ function decision(decision){
 
 function newChallenge(){
     currentWord = selectRandomWord();
-    fetchWordInfo(currentWord);
-    showWord(currentWord);
+    cleanWord();
+    //check if wordinfo is found
+    fetchWordInfo(currentWord).then(function(){
+        showWord(currentWord);
+        console.log('arrived');
+        loader.style.visibility="hidden";
+    });
 }
-
-newChallenge()
+loader.style.visibility="visible";
+newChallenge();
