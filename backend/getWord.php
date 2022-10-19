@@ -1,30 +1,38 @@
 <?php
+// require("rb.php");
+// require("config.php");
+// require('database.php');
+
 error_reporting(E_ERROR | E_PARSE);
 
+// $word = $_POST["word"];
 $word = $_POST["word"];
 $elements = ['empty'];
 $infoFound = true;
 
-    //get new word!!
+//get new word!!
 
-    $curl = curl_init("https://www.woorden.org/woord/". $word);
-//    $curl = curl_init("https://www.welklidwoord.nl/". $word);
 
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HEADER, 0);
-    $result = curl_exec($curl);
-    curl_close($curl);
+$curl = curl_init("https://www.woorden.org/woord/". $word);
 
-    $dom = new DOMDocument();
-    $dom->loadHTML($result);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_HEADER, 0);
+$result = curl_exec($curl);
+curl_close($curl);
 
-    $xpath = new DomXPath($dom);
+$dom = new DOMDocument();
+$dom->loadHTML($result);
+
+$xpath = new DomXPath($dom);
 
 //    $class = 'nieuwH2';
-    $style = 'font-size:8pt';
+$style = 'font-size:8pt';
 //    $elements = $xpath->query("//*[contains(@class, '$class')]");
-    $elements = $xpath->query("//*[contains(@style, '$style')]");
+$elements = $xpath->query("//*[contains(@style, '$style')]");
 
+function addWordToCurated(){
+    return true;
+}
 
 
 $articles = [];
@@ -40,7 +48,9 @@ $articles = array_unique($articles);
 //var_dump($articles);
 
 $infoFound = empty($articles) ? false : true;
-
+if($infoFound){
+    addWordToCurated($word);
+}
 $data = [
     'word' => $word,
     'infoFound' => $infoFound,

@@ -61,7 +61,6 @@ function decision(decision){
             html: `Het juiste antwoord zou moeten zijn <b><U>${currentArticles[0]}</U></b> <i>${currentWord}</i>`,
         }).then(() => newChallenge());
     }
-
 }
 
 function newChallenge(){
@@ -74,5 +73,5 @@ function newChallenge(){
         loader.style.visibility="hidden";
     });
 }
-loader.style.visibility="visible";
+
 newChallenge();

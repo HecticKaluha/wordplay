@@ -37,3 +37,8 @@ body{
     left: 50%;
     will-change: transform;
 }
+
+#word{
+    min-height:10vh;
+    line-height:10vh;
+}
