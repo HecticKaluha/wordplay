@@ -1,17 +1,17 @@
 <?php
-// require("rb.php");
-// require("config.php");
-// require('database.php');
+ require("rb.php");
+ require("config.php");
+ require('database.php');
 
 error_reporting(E_ERROR | E_PARSE);
 
-// $word = $_POST["word"];
-$word = $_POST["word"];
+//$word = $_POST["word"];
+$word = R::getRow('SELECT * FROM word where word NOT IN (SELECT word FROM curatedword) ORDER BY RAND() LIMIT 1;');
+$word = $word['word'];
+R::trashAll(R::find('word', 'word = ?', [$word]));
 $elements = ['empty'];
 $infoFound = true;
-
-//get new word!!
-
+$possibleArticles = ['de', 'het'];
 
 $curl = curl_init("https://www.woorden.org/woord/". $word);
 
@@ -25,32 +25,29 @@ $dom->loadHTML($result);
 
 $xpath = new DomXPath($dom);
 
-//    $class = 'nieuwH2';
 $style = 'font-size:8pt';
-//    $elements = $xpath->query("//*[contains(@class, '$class')]");
 $elements = $xpath->query("//*[contains(@style, '$style')]");
 
-function addWordToCurated(){
-    return true;
+function addWordToCurated($curatedWord, $article){
+    $article = R::findOrCreate('article', ['article' => $article]);
+    $curatedWord = R::findOrCreate('curatedword', ['word' => $curatedWord]);
+    $curatedWord->sharedArticleList[] = $article;
+    return R::store($curatedWord);
 }
-
 
 $articles = [];
 foreach($elements as $elem) {
     $value = trim(htmlspecialchars($elem->nodeValue));
-//    $article = substr($value, 0,strrpos($value," "));
-    if(in_array($value, ['de', 'het'])){
-        $article = $value;
-        array_push($articles, $article);
+    if(in_array($value, $possibleArticles)){
+        array_push($articles, $value);
+        $key = array_search($value, $possibleArticles);
+        addWordToCurated($word, $possibleArticles[$key]);
     }
 }
 $articles = array_unique($articles);
-//var_dump($articles);
 
 $infoFound = empty($articles) ? false : true;
-if($infoFound){
-    addWordToCurated($word);
-}
+
 $data = [
     'word' => $word,
     'infoFound' => $infoFound,
