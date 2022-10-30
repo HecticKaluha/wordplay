@@ -5,6 +5,8 @@ let currentArticles = [];
 let currentWord = null;
 let currentWordInfoFound = false;
 let loader = document.getElementById('loader');
+const URL = `http://localhost:8181/persoonlijk/wordplay/backend/`;
+// const URL = `http://192.168.1.53:8181/wordplay/backend/`;
 
 // function selectRandomWord(){
 //     return words[Math.floor(Math.random() * words.length)];
@@ -21,8 +23,9 @@ async function fetchWordInfo(wordToFetch){
     //     formData.append(key, body[key]);
     // }
 
-    await fetch("http://localhost/sites/persoonlijk/wordplay/backend/getWord.php",{
+    await fetch(`${URL}getWord.php`,{
         method:'GET',
+        mode: 'cors'
     })
         .then(res => res.json())
         .then(data => {

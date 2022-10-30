@@ -151,3 +151,4 @@ fabric.properties
 .idea/
 
 backend/config.php
+backend/config.live.php
