@@ -152,3 +152,4 @@ fabric.properties
 
 backend/config.php
 backend/config.live.php
+assets/currentWords.txt
